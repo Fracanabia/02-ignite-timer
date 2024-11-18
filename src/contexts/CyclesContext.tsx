@@ -1,39 +1,39 @@
-import { differenceInSeconds } from 'date-fns';
+import { differenceInSeconds } from "date-fns"
 import {
   createContext,
   ReactNode,
   useEffect,
   useReducer,
   useState,
-} from 'react';
+} from "react"
 import {
   addNewCycleAction,
   interruptCurrentCycleAction,
   markCurrentCycleAsFinishedAction,
-} from '../reducers/cycles/actions';
-import { Cycle, cyclesReducer } from '../reducers/cycles/reducers';
+} from "../reducers/cycles/actions"
+import { Cycle, cyclesReducer } from "../reducers/cycles/reducers"
 
 interface CreateCycleData {
-  task: string;
-  minutesAmount: number;
+  task: string
+  minutesAmount: number
 }
 
 interface CyclesContextType {
-  cycles: Cycle[];
-  activeCycle: Cycle | undefined;
-  activeCycleId: string | null;
-  amountSecondsPassed: number;
-  markCurrentCycleAsFinished: () => void;
-  setSecondsPassed: (seconds: number) => void;
-  createNewCycle: (data: CreateCycleData) => void;
-  interruptCurrentCycle: () => void;
+  cycles: Cycle[]
+  activeCycle: Cycle | undefined
+  activeCycleId: string | null
+  amountSecondsPassed: number
+  markCurrentCycleAsFinished: () => void
+  setSecondsPassed: (seconds: number) => void
+  createNewCycle: (data: CreateCycleData) => void
+  interruptCurrentCycle: () => void
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const CyclesContext = createContext({} as CyclesContextType);
+export const CyclesContext = createContext({} as CyclesContextType)
 
 interface CyclesContextProviderProps {
-  children: ReactNode;
+  children: ReactNode
 }
 export const CyclesContextProvider = ({
   children,
@@ -44,58 +44,58 @@ export const CyclesContextProvider = ({
       cycles: [],
       activeCycleId: null,
     },
-    (initialState) => {
+    initialState => {
       const storedStateAsJSON = localStorage.getItem(
-        '@ignite-timer:cycles-state-1.0.0'
-      );
+        "@ignite-timer:cycles-state-1.0.0",
+      )
 
       if (storedStateAsJSON) {
-        return JSON.parse(storedStateAsJSON);
+        return JSON.parse(storedStateAsJSON)
       }
 
-      return initialState;
-    }
-  );
+      return initialState
+    },
+  )
 
-  const { cycles, activeCycleId } = cycleState;
-  const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId);
+  const { cycles, activeCycleId } = cycleState
+  const activeCycle = cycles.find(cycle => cycle.id === activeCycleId)
 
   const [amountSecondsPassed, setAmountSecondsPassed] = useState(() => {
     if (activeCycle) {
-      return differenceInSeconds(new Date(), new Date(activeCycle.startDate));
+      return differenceInSeconds(new Date(), new Date(activeCycle.startDate))
     }
 
-    return 0;
-  });
+    return 0
+  })
 
   const setSecondsPassed = (seconds: number) => {
-    setAmountSecondsPassed(seconds);
-  };
+    setAmountSecondsPassed(seconds)
+  }
 
   const markCurrentCycleAsFinished = () => {
-    dispatch(markCurrentCycleAsFinishedAction());
-  };
+    dispatch(markCurrentCycleAsFinishedAction())
+  }
 
   const createNewCycle = (data: CreateCycleData) => {
-    const id = String(new Date().getTime().toString());
+    const id = String(new Date().getTime().toString())
     const newCycle: Cycle = {
       id,
       task: data.task,
       minutesAmount: data.minutesAmount,
       startDate: new Date(),
-    };
-    dispatch(addNewCycleAction(newCycle));
-    setAmountSecondsPassed(0);
-  };
+    }
+    dispatch(addNewCycleAction(newCycle))
+    setAmountSecondsPassed(0)
+  }
 
   const interruptCurrentCycle = () => {
-    dispatch(interruptCurrentCycleAction());
-  };
+    dispatch(interruptCurrentCycleAction())
+  }
 
   useEffect(() => {
-    const stateJSON = JSON.stringify(cycleState);
-    localStorage.setItem('@ignite-timer:cycles-state-1.0.0', stateJSON);
-  }, [cycleState]);
+    const stateJSON = JSON.stringify(cycleState)
+    localStorage.setItem("@ignite-timer:cycles-state-1.0.0", stateJSON)
+  }, [cycleState])
 
   return (
     <CyclesContext.Provider
@@ -112,5 +112,5 @@ export const CyclesContextProvider = ({
     >
       {children}
     </CyclesContext.Provider>
-  );
-};
+  )
+}
